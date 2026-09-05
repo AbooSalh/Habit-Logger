@@ -125,5 +125,25 @@ namespace HabitLogger.Console
                 System.Console.WriteLine($"Habit ID: {habitId}, Name: {habitName}, Occurrences: {occurrenceCount}");
             }
         }
+        public void DisplayHabitOccurrences(int habitId)
+        {
+            using var connection = new SqliteConnection(connectionString);
+            connection.Open();
+            var command = connection.CreateCommand();
+            command.CommandText = @"
+                SELECT Date, Quantity
+                FROM Occurrence
+                WHERE HabitId = @habitId
+                ORDER BY Date;";
+            command.Parameters.AddWithValue("@habitId", habitId);
+            using var reader = command.ExecuteReader();
+            System.Console.WriteLine($"Occurrences for Habit ID: {habitId}");
+            while (reader.Read())
+            {
+                string date = reader.GetString(0);
+                int quantity = reader.GetInt32(1);
+                System.Console.WriteLine($"Date: {date}, Quantity: {quantity}");
+            }
+        }
     }
 }
